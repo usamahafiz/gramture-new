@@ -438,6 +438,15 @@
 
 // export default AddContent;
 
+
+
+
+
+
+
+
+
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   Form,
@@ -491,15 +500,56 @@ const AddContent = () => {
 
   const [form] = Form.useForm();
 
+  // useEffect(() => {
+  //   const fetchClasses = async () => {
+  //     const querySnapshot = await getDocs(collection(fireStore, "classes"));
+  //     const fetchedClasses = querySnapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       name: doc.data().name,
+  //     }));
+  //     setClasses(fetchedClasses);
+
+      
+
+  //     const draft = JSON.parse(localStorage.getItem("draft"));
+  //     if (draft) {
+  //       setDescription(draft.description || "");
+  //       form.setFieldsValue(draft);
+  //       if (draft.mcqs) {
+  //         setMcqs(draft.mcqs);
+  //         setIsMCQ(true);
+  //       }
+  //       if (draft.featuredImage) {
+  //         setFeaturedImage(draft.featuredImage);
+  //       }
+  //     }
+  //   };
+
+  //   fetchClasses();
+  // }, [form]);
+
+
+
   useEffect(() => {
-    const fetchClasses = async () => {
-      const querySnapshot = await getDocs(collection(fireStore, "classes"));
-      const fetchedClasses = querySnapshot.docs.map((doc) => ({
+  const fetchData = async () => {
+    try {
+      // Fetch classes
+      const classSnapshot = await getDocs(collection(fireStore, "classes"));
+      const fetchedClasses = classSnapshot.docs.map((doc) => ({
         id: doc.id,
         name: doc.data().name,
       }));
       setClasses(fetchedClasses);
 
+      // ✅ Fetch subcategories
+      const subCatSnapshot = await getDocs(collection(fireStore, "subcategories"));
+      const fetchedSubCategories = subCatSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+      }));
+      setSubCategories(fetchedSubCategories);
+
+      // Load draft from localStorage
       const draft = JSON.parse(localStorage.getItem("draft"));
       if (draft) {
         setDescription(draft.description || "");
@@ -512,10 +562,15 @@ const AddContent = () => {
           setFeaturedImage(draft.featuredImage);
         }
       }
-    };
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      message.error("Failed to load initial data.");
+    }
+  };
 
-    fetchClasses();
-  }, [form]);
+  fetchData();
+}, [form]);
+
 
   const uploadFeaturedImage = async (file) => {
     setImageUploading(true);

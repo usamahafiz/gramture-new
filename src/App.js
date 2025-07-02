@@ -14,6 +14,9 @@ import Preview from './components/pdfViewer/Index';
 import DescriptionPage from './components/DescriptionPage';
 import ContactSection from './components/ContactPage';
 import Gramturestore from './components/GramtureStore';
+import Faqs from './components/faqs';
+import PrivacyPolicy from './components/privacypolicy';
+import ManageProducts from './pages/Admin-Dashboard/ManageContent';
 
 function HomePage() {
   return (
@@ -36,7 +39,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutSection />} />
              <Route path="/contact" element={<ContactSection />} />
+                <Route path="/faqs" element={<Faqs />} />
+                   <Route path="/privacypolicy" element={<PrivacyPolicy />} />
           <Route path="/addContent" element={<AddContent />} />
+           <Route path="/managecontent" element={<ManageProducts />} />
           <Route path="/preview" element={<Preview/>} />
           <Route path="/description" element={<DescriptionPage />} />
           <Route path="/notes/:selectedClass" element={<Notes/>} />
