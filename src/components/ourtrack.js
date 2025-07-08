@@ -7,17 +7,17 @@ import Leadership from '../assets/images/t2.jpg';
 export default function Project() {
   const tracks = [
     {
-      title: "Exams & Test Preparation",
+      title: "Notes & Test Preparation",
       description: "Master your exams with our comprehensive test preparation resources, designed to boost your confidence.",
       image: TestPrep,
     },
     {
-      title: "Soft Skills",
+      title: "Grammar Portion",
       description: "Covers communication skills, leadership, time management, productivity, and career development.",
       image: Personal,
     },
     {
-      title: "Leadership & Management",
+      title: "MCQs tests & Past Papers",
       description: "Focuses on decision-making, emotional intelligence, and team-building skills to develop effective leaders.",
       image: Leadership,
     },

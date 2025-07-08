@@ -91,13 +91,25 @@ const Notes = () => {
     }
   };
 
-  const handleDescriptionClick = (topic) => {
-    const id = encodeURIComponent(topic.id);
-    const name = encodeURIComponent(topic.name || "Untitled");
-    const description = encodeURIComponent(topic.description || "");
+  // const handleDescriptionClick = (topic) => {
+  //   const id = encodeURIComponent(topic.id);
+  //   const name = encodeURIComponent(topic.name || "Untitled");
+  //   const description = encodeURIComponent(topic.description || "");
 
-    navigate(`/description?id=${id}&name=${name}&description=${description}`);
-  };
+  //   navigate(`/description?id=${id}&name=${name}&description=${description}`);
+  // };
+
+  const handleDescriptionClick = (topic) => {
+  const slug = topic.name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .trim();
+
+  navigate(`/description/${selectedSubcategory}/${slug}`);
+};
+
 
   return (
     <div className="notes-container" style={{ marginTop: "20px" }}>

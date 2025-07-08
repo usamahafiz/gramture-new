@@ -25,7 +25,7 @@ function HomePage() {
       <Classes />
       <OurTracks />
       <TestimonialsSection />
-      
+
     </>
   );
 }
@@ -36,6 +36,26 @@ function App() {
       <Header />
       <main className='main-content'>
         <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutSection />} />
+          <Route path="/contact" element={<ContactSection />} />
+          <Route path="/faqs" element={<Faqs />} />
+          <Route path="/privacypolicy" element={<PrivacyPolicy />} />
+          <Route path="/addContent" element={<AddContent />} />
+          <Route path="/managecontent" element={<ManageProducts />} />
+          <Route path="/preview" element={<Preview />} />
+
+          {/* ✅ Updated Description Route */}<Route path="/description" element={<DescriptionPage />} />
+          <Route path="/description/:subCategory/:topicSlug" element={<DescriptionPage />} />
+
+
+          <Route path="/notes/:selectedClass" element={<Notes />} />
+          <Route path="/notes/:selectedClass/:category" element={<Notes />} />
+          <Route path="/notes/:selectedClass/:category/:subcategory" element={<Notes />} />
+          <Route path="/gramturestore" element={<Gramturestore />} />
+        </Routes>
+
+        {/* <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutSection />} />
              <Route path="/contact" element={<ContactSection />} />
@@ -50,7 +70,7 @@ function App() {
           <Route path="/notes/:selectedClass/:category/:subcategory" element={<Notes />} />
              <Route path="/gramturestore" element={<Gramturestore />} />
 
-        </Routes>
+        </Routes> */}
       </main>
       <Footer />
     </div>

@@ -128,9 +128,9 @@ const Footer = () => {
                     0303-6660025
                   </Link>
                 </p>
-                {/* <p className="mt-2">
-                  Main shop Jia Musa Shahdara Lahore, Pakistan, 54950
-                </p> */}
+               <p className="mt-2">
+                  Ground Floor, Near AB Printers, Makkah Center, Aminpur Bazaar, Faisalabad
+                </p>
                 <p>
                   <Link to="mailto:theambitious.edu@gmail.com" className="text-dark" style={{ textDecoration: "none" }}>
                     gramture@gmail.com
