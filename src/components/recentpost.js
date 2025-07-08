@@ -108,13 +108,25 @@ RecentPostCard.propTypes = {
 };
 
 export const RecentPostsSection = memo(({ recentPosts, loading, error }) => {
-  if (loading) {
-    return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '200px' }}>
-        <Spinner animation="border" size="lg" variant="primary" />
-      </div>
-    );
-  }
+ if (loading) {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#ffffff' // Optional: white background while loading
+      }}
+    >
+      <Spinner animation="border" size="lg" variant="primary" />
+    </div>
+  );
+}
 
   if (error) {
     return (

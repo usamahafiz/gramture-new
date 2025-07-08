@@ -2,7 +2,7 @@ import React from 'react';
 import '../assets/css/ourtrack.css';
 import TestPrep from '../assets/images/t4.jpg';
 import Personal from '../assets/images/t1.jpg';
-import Leadership from '../assets/images/t2.jpg';
+import Leadership from '../assets/images/past ppr.jpg';
 
 export default function Project() {
   const tracks = [
