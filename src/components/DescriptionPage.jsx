@@ -1,45 +1,70 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { fireStore } from "../config/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import "../assets/css/description.css";
-
 import { Spin } from "antd";
-
-const extractTextFromHTML = (htmlString) => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlString, "text/html");
-  return doc.body.textContent || "";
-};
 
 const DescriptionPage = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
-  const id = queryParams.get("id");
-  const name = queryParams.get("name") || "Untitled Topic";
-  const rawDescription = queryParams.get("description") || "<p>No description available.</p>";
+  const name = queryParams.get("name");
+  const [description, setDescription] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const decodedDescription = decodeURIComponent(rawDescription);
+  useEffect(() => {
+    const fetchDescription = async () => {
+      if (!name) return;
 
-  if (!id) {
-    return <h2 style={{ textAlign: "center" }}>No product ID provided</h2>;
+      setLoading(true);
+      console.log(`Fetching description for topic: ${name}`);
+      try {
+        const q = query(
+          collection(fireStore, "topics"),
+          where("topic", "==", name)
+        );
+        const snapshot = await getDocs(q);
+        console.log(`Found ${snapshot.size} topics matching "${name}"`);
+
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
+          console.log("Topic data:", data);
+
+          // ✅ Use top-level `description`
+          setDescription(data.description || "<p>No description available.</p>");
+        } else {
+          setDescription("<p>No topic found.</p>");
+        }
+      } catch (error) {
+        console.error("Error fetching topic description:", error);
+        setDescription("<p>Error loading description.</p>");
+      }
+      setLoading(false);
+    };
+
+    fetchDescription();
+  }, [name]);
+
+  if (!name) {
+    return <h2 style={{ textAlign: "center" }}>No topic name provided</h2>;
   }
 
   return (
     <div className="description-container" style={{ marginTop: "50px" }}>
-      {/* <Helmet>
-        <title>Gramture - {name}</title>
-        <meta
-          name="description"
-          content={extractTextFromHTML(decodedDescription).substring(0, 150)}
-        />
-      </Helmet> */}
-
       <h1 style={{ fontSize: "2rem", fontWeight: "bold", textAlign: "center" }}>
         {name}
       </h1>
+
       <article className="product-article">
         <div className="product-description">
-          <div dangerouslySetInnerHTML={{ __html: decodedDescription }} />
+          {loading ? (
+            <div style={{ textAlign: "center" }}>
+              <Spin size="large" />
+            </div>
+          ) : (
+            <div dangerouslySetInnerHTML={{ __html: description }} />
+          )}
         </div>
       </article>
     </div>
@@ -47,3 +72,4 @@ const DescriptionPage = () => {
 };
 
 export default DescriptionPage;
+

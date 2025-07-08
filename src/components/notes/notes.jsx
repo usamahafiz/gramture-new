@@ -2,80 +2,103 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fireStore } from "../../config/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
-import "../../assets/css/notes.css";
 
 const Notes = () => {
-  const { selectedClass } = useParams();
+  const { selectedClass, subCategory } = useParams();
   const navigate = useNavigate();
 
   const [subCategories, setSubCategories] = useState([]);
-  const [topics, setTopics] = useState([]);
+  const [topics, setTopics] = useState({});
   const [loading, setLoading] = useState(false);
-
-  const [selectedSubcategory, setSelectedSubcategory] = useState("");
-  const [showSubcategoryDropdown, setShowSubcategoryDropdown] = useState(false);
+  const [openSubCatId, setOpenSubCatId] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     fetchSubCategories();
   }, []);
 
+  useEffect(() => {
+    if (subCategory && subCategories.length > 0) {
+      const index = subCategories.findIndex(
+        (name) => name.toLowerCase() === subCategory.toLowerCase()
+      );
+      if (index !== -1) {
+        setOpenSubCatId(index);
+        fetchTopics(subCategory);
+      }
+    }
+  }, [subCategory, subCategories]);
+
   const fetchSubCategories = async () => {
     try {
       const snapshot = await getDocs(collection(fireStore, "subcategories"));
-      const subList = snapshot.docs.map((doc) => doc.data());
-      setSubCategories(subList);
-      console.log("Subcategories fetched:", subList);
+      const subs = snapshot.docs.map((doc) => doc.data().name);
+      setSubCategories(subs);
     } catch (error) {
       console.error("Error fetching subcategories:", error);
     }
   };
 
-  const fetchTopics = async (subcategory) => {
-    if (!selectedClass || !subcategory) return;
-
+  const fetchTopics = async (subCatName) => {
     setLoading(true);
-    setTopics([]);
-
     try {
       const q = query(
         collection(fireStore, "topics"),
         where("class", "==", `Class ${selectedClass}`),
-        where("subCategory", "==", subcategory)
+        where("subCategory", "==", subCatName)
       );
 
       const snapshot = await getDocs(q);
-      const topicsList = [];
-
+      const topicData = {};
       snapshot.forEach((doc) => {
         const data = doc.data();
-        if (data.topic) {
-          topicsList.push({
-            id: doc.id,
-            name: data.topic,
-            fileUrls: data.notesFile || [],
-            description: data.description || "",
-          });
-        }
+        if (data.topic) topicData[data.topic] = data.fileUrls || [];
       });
 
-      setTopics(topicsList);
-      console.log("Topics fetched:", topicsList);
+      const sortedKeys = Object.keys(topicData).sort((a, b) => {
+        const numA = parseInt(a.match(/^\d+/)?.[0]);
+        const numB = parseInt(b.match(/^\d+/)?.[0]);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return a.localeCompare(b);
+      });
+
+      const sortedTopics = {};
+      sortedKeys.forEach((key) => {
+        sortedTopics[key] = topicData[key];
+      });
+
+      setTopics(sortedTopics);
     } catch (error) {
       console.error("Error fetching topics:", error);
     }
     setLoading(false);
   };
 
-  const handleSubcategorySelect = (subcategory) => {
-    console.log("Subcategory selected:", subcategory);
-    setSelectedSubcategory(subcategory);
-    setShowSubcategoryDropdown(false);
-    fetchTopics(subcategory);
+  const handleSubCategoryClick = (subCatName, index) => {
+    const newOpenId = openSubCatId === index ? null : index;
+    setOpenSubCatId(newOpenId);
+
+    if (newOpenId !== null) {
+      fetchTopics(subCatName);
+      navigate(`/notes/${selectedClass}/${subCatName}`);
+    } else {
+      setTopics({});
+      navigate(`/notes/${selectedClass}`);
+    }
+
+    setTimeout(() => {
+      const cardElement = document.querySelectorAll(".subject-card")[index];
+      if (cardElement) {
+        cardElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   };
 
-  const handleTopicClick = (topic) => {
-    const fileData = topic.notesFile || topic.fileUrls || "";
+  const handleTopicClick = (topicName) => {
+    const cleanTopicName = topicName;
+    const fileData = topics[cleanTopicName]?.[0];
+    console.log("File data for topic:", cleanTopicName, fileData);
+
     let fileUrl = "";
 
     if (typeof fileData === "string") {
@@ -84,115 +107,163 @@ const Notes = () => {
       fileUrl = fileData.url || fileData.fileUrl || "";
     }
 
-    if (fileUrl && typeof fileUrl === "string") {
-      navigate(`/preview?url=${encodeURIComponent(fileUrl)}`);
-    } else {
-      console.warn("No valid file URL found for topic:", topic.name);
-    }
+    const description = fileData?.description || "<p>No description available.</p>";
+    const id = fileData?.id || cleanTopicName;
+
+    navigate(
+      `/description?id=${encodeURIComponent(id)}&name=${encodeURIComponent(
+        cleanTopicName
+      )}&description=${encodeURIComponent(description)}`
+    );
   };
 
-  const handleDescriptionClick = (topic) => {
-    const id = encodeURIComponent(topic.id);
-    const name = encodeURIComponent(topic.name || "Untitled");
-    const description = encodeURIComponent(topic.description || "");
+  // Inline styles (same as working version)
+  const containerStyle = {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    padding: '20px 20px 250px',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  };
 
-    navigate(`/description?id=${id}&name=${name}&description=${description}`);
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+    gap: '24px',
+    alignItems: 'flex-start'
+  };
+
+  const cardStyle = (isActive) => ({
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+    border: `2px solid ${isActive ? '#007bff' : 'transparent'}`,
+    transition: 'all 0.3s ease',
+    overflow: 'visible',
+    position: 'relative'
+  });
+
+  const headerStyle = {
+    padding: '16px 20px',
+    fontSize: '18px',
+    fontWeight: '600',
+    backgroundColor: '#f1f3f5',
+    color: '#343a40',
+    cursor: 'pointer',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: '12px 12px 0 0',
+    transition: 'background 0.2s'
+  };
+
+  const dropdownStyle = {
+    backgroundColor: '#ffffff',
+    borderTop: '1px solid #e9ecef',
+    borderRadius: '0 0 12px 12px',
+    maxHeight: '60vh',
+    overflowY: 'auto',
+    position: 'relative',
+    zIndex: 10
+  };
+
+  const dropdownContentStyle = {
+    padding: '20px'
+  };
+
+  const topicsGridStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+    gap: '12px',
+    marginTop: '10px'
+  };
+
+  const topicItemStyle = {
+    background: '#ffffff',
+    border: '1px solid #dee2e6',
+    padding: '12px 15px',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '15px',
+    color: '#343a40',
+    transition: '0.2s ease',
+    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+    wordWrap: 'break-word'
+  };
+
+  const loadingStyle = {
+    padding: '20px 0',
+    color: '#6c757d',
+    fontStyle: 'italic',
+    textAlign: 'center'
   };
 
   return (
-    <div className="notes-container" style={{ marginTop: "20px" }}>
+    <div style={containerStyle}>
       <main>
-        <h2 className="text-center">Educational Portal - {selectedClass}</h2>
-        <p className="intro-text">
-          Select a subcategory to view available topics.
+        <h2>Welcome to Our Educational Portal</h2>
+        <p style={{ textAlign: 'center', padding: '20px 0', fontWeight: 'bold' }}>
+          Our goal is to provide high-quality educational resources.
         </p>
 
-        <div className="selection-container">
-          <div className="dropdown-wrapper">
-            <label className="dropdown-label">Select Subcategory:</label>
-            <div className="custom-dropdown">
+        <div style={gridStyle}>
+          {subCategories.map((subCatName, index) => (
+            <div
+              key={index}
+              className="subject-card"
+              style={cardStyle(openSubCatId === index)}
+            >
               <div
-                className={`dropdown-header ${
-                  showSubcategoryDropdown ? "active" : ""
-                }`}
-                onClick={() => setShowSubcategoryDropdown(!showSubcategoryDropdown)}
+                style={headerStyle}
+                onClick={() => handleSubCategoryClick(subCatName, index)}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#e9ecef';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = '#f1f3f5';
+                }}
               >
-                <span>
-                  {selectedSubcategory || "Choose a subcategory..."}
-                </span>
-                <span className="dropdown-arrow">
-                  {showSubcategoryDropdown ? "▲" : "▼"}
-                </span>
+                <span>{subCatName}</span>
+                <span>{openSubCatId === index ? "▼" : "►"}</span>
               </div>
 
-              {showSubcategoryDropdown && (
-                <div className="dropdown-options">
-                  {subCategories.map((subcategory, index) => (
-                    <div
-                      key={index}
-                      className={`dropdown-option ${
-                        selectedSubcategory === subcategory.name ? "selected" : ""
-                      }`}
-                      onClick={() => handleSubcategorySelect(subcategory.name)}
-                    >
-                      {subcategory.name}
-                    </div>
-                  ))}
+              {openSubCatId === index && (
+                <div style={dropdownStyle}>
+                  <div style={dropdownContentStyle}>
+                    {loading ? (
+                      <div style={loadingStyle}>Loading...</div>
+                    ) : Object.keys(topics).length > 0 ? (
+                      <div style={topicsGridStyle}>
+                        {Object.keys(topics).map((topicName, i) => (
+                          <div
+                            key={i}
+                            style={topicItemStyle}
+                            onClick={() => handleTopicClick(topicName)}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = '#f1f9ff';
+                              e.target.style.color = '#007bff';
+                              e.target.style.borderColor = '#007bff';
+                              e.target.style.transform = 'translateY(-1px)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = '#ffffff';
+                              e.target.style.color = '#343a40';
+                              e.target.style.borderColor = '#dee2e6';
+                              e.target.style.transform = 'translateY(0)';
+                            }}
+                          >
+                            📌 {topicName}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={loadingStyle}>No topics available</div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          ))}
         </div>
-
-        {selectedSubcategory && (
-          <div className="topics-section">
-            <h3>Topics for Subcategory → {selectedSubcategory}</h3>
-
-            {loading ? (
-              <div className="loading-spinner">
-                <div className="spinner"></div>
-                <span>Loading topics...</span>
-              </div>
-            ) : topics.length > 0 ? (
-              <div className="topics-grid">
-                {topics.map((topic, index) => (
-                  <div key={index} className="topic-card">
-                    <div className="topic-icon">📚</div>
-                    <div className="topic-name">{topic.name}</div>
-                    <div className="topic-files">
-                      {topic.fileUrls?.length || 0} files
-                    </div>
-                    <div className="topic-actions">
-                      <button onClick={() => handleDescriptionClick(topic)}>
-                        Description
-                      </button>
-                      <button onClick={() => handleTopicClick(topic)}>
-                        Preview File
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="no-topics-message">
-                <div className="no-topics-icon">📝</div>
-                <p>No topics found for this subcategory.</p>
-                <small>Try selecting a different subcategory.</small>
-              </div>
-            )}
-          </div>
-        )}
-
-        {!selectedSubcategory && (
-          <div className="instructions">
-            <h3>How to use:</h3>
-            <ol>
-              <li>Select a <strong>Subcategory</strong> from the dropdown above</li>
-              <li>Browse the <strong>Topics</strong> that will be displayed</li>
-              <li>Click on any topic to view the content</li>
-            </ol>
-          </div>
-        )}
       </main>
     </div>
   );

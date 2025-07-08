@@ -9,15 +9,14 @@ import class12 from '../assets/images/class 12.png';
 const FeaturedClasses = () => {
   const navigate = useNavigate();
 
-    const handleCardClick = (className) => {
-    // Normalize class name if needed (e.g., replace spaces)
-    navigate(`/notes/${className.toLowerCase().replace(" ", "")}`);
+  const handleCardClick = (classNumber) => {
+    navigate(`/notes/${classNumber}`);
   };
 
   return (
     <section className="featured-section">
       <div className="featured-container">
-        {/* Featured Classes Heading & Description */}
+        {/* Heading */}
         <div className="top-text-center">
           <div className="heading-wrapper">
             <h2 className="section-heading">Featured Classes</h2>
@@ -29,7 +28,7 @@ const FeaturedClasses = () => {
           </p>
         </div>
 
-        {/* Cards in a Row */}
+        {/* Class Cards */}
         <div className="horizontal-card-container">
           <div className="class-card" onClick={() => handleCardClick("9")}>
             <img src={class9} alt="Class 9" className="class-image" />
@@ -76,7 +75,7 @@ const FeaturedClasses = () => {
           </div>
         </div>
 
-        {/* 🔽 Recents Section (Placeholder) */}
+        {/* Recent Section */}
         <div className="recent-section">
           <div className="heading-wrapper">
             <h2 className="section-heading">Recents</h2>
