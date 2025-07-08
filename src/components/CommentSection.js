@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { message } from "antd";
 import { addDoc, collection, getDocs, updateDoc, doc } from "firebase/firestore";
-import { fireStore } from "../firebase/firebase";
+import { fireStore } from "../config/firebase";
 
 const CommentSection = ({ subCategory, topicId }) => {
   const [comments, setComments] = useState([]);

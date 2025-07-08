@@ -45,8 +45,8 @@ function App() {
           <Route path="/managecontent" element={<ManageProducts />} />
           <Route path="/preview" element={<Preview />} />
 
-          {/* ✅ Updated Description Route */}<Route path="/description" element={<DescriptionPage />} />
-          <Route path="/description/:subCategory/:topicSlug" element={<DescriptionPage />} />
+          {/* ✅ Updated Description Route */}<Route path="/description/:topicSlug" element={<DescriptionPage />} />
+          <Route path="/description/:topicSlug" element={<DescriptionPage />} />
 
 
           <Route path="/notes/:selectedClass" element={<Notes />} />

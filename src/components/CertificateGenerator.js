@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import html2canvas from "html2canvas";
-import "../assets/css/CertificateGenerator.css";
+
 import img from "../assets/images/new-logo.webp"; // Logo image
 
 const CertificateGenerator = ({

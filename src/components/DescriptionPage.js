@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { message, Spin } from "antd";
 import { getDocs, collection } from "firebase/firestore";
-import { fireStore } from "../firebase/firebase";
+import { fireStore } from "../config/firebase";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import "../assets/css/description.css";

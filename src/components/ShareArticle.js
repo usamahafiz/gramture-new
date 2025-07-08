@@ -1,7 +1,7 @@
 import React from 'react';
 import { message } from 'antd';
 import { FaShareAlt } from 'react-icons/fa';
-import "../assets/css/sharearticle.css";
+
 
 const ShareArticle = () => {
   const handleShare = () => {
