@@ -45,7 +45,7 @@ function App() {
           <Route path="/managecontent" element={<ManageProducts />} />
           <Route path="/preview" element={<Preview />} />
 
-          {/* ✅ Updated Description Route */}<Route path="/description" element={<DescriptionPage />} />
+          <Route path="/description" element={<DescriptionPage />} />
           <Route path="/description/:subCategory/:topicSlug" element={<DescriptionPage />} />
 
 

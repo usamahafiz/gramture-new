@@ -12,9 +12,7 @@ import { Helmet } from "react-helmet-async";
 import CertificateGenerator from "./CertificateGenerator";
 import { Document, Page } from "react-pdf";
 import { pdfjs } from 'react-pdf';
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.entry';
-
-pdfjs.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 // Helper function to create slugs
 const createSlug = (str) => {
@@ -28,6 +26,8 @@ const createSlug = (str) => {
 
 export default function Description() {
   const { subCategory, topicSlug } = useParams();
+  console.log("SubCategory:", subCategory);
+  console.log("TopicSlug:", topicSlug);
   const navigate = useNavigate();
 
   const [products, setProducts] = useState([]);
@@ -47,7 +47,7 @@ export default function Description() {
   useEffect(() => {
     fetchProducts();
     fetchAllTopics();
-  }, [subCategory, topicSlug]);
+  }, []);
 
   const fetchProducts = async () => {
     try {
@@ -64,7 +64,7 @@ export default function Description() {
             (product.id === topicSlug || product.slug === topicSlug)
         );
       setProducts(productList);
-      console.log("Product List:", productList[0].notesFile);
+      console.log("Fetched Products:", productList);
       setMcqs(productList[0]?.mcqs || []);
       setLoading(false);
     } catch (error) {
